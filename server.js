@@ -1,6 +1,7 @@
 const express = require('express')
 const {ApolloServer, gql} = require('apollo-server-express')
 const fetch = require('node-fetch');
+var cors = require('cors');
 
 
 
@@ -44,10 +45,10 @@ const typeDefs = gql`
   
   # parent types: Query, Mutation and Subscriptions (websockets!!?) 
   type Query {
-    getProgrammers: [Programmer]
-    getProgrammer(id: ID!): Programmer
-    getCount: Int
-    getPortPassportInitialState: [PPUserRole]
+    programmers: [Programmer]
+    programmer(id: ID!): Programmer
+    count: Int
+    portPassportRoles: [PPUserRole]
   }
   type Mutation {
     incCount(number: Int): Int 
@@ -56,10 +57,10 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    getProgrammers: () => programmers,
-    getProgrammer: (parent, {id}) => getProgrammerFunction(id),
-    getCount: () => count,
-    getPortPassportInitialState: () => fetchFromPortPassport()
+    programmers: () => programmers,
+    programmer: (parent, {id}) => getProgrammerFunction(id),
+    count: () => count,
+    portPassportRoles: () => fetchFromPortPassport()
   },
   Mutation: {
     incCount: (parent, {number}) => incrementCount(number)
@@ -70,6 +71,8 @@ const server = new ApolloServer({typeDefs, resolvers})
 
 const app = express();
 server.applyMiddleware({ app })
+
+app.use(cors());
 
 app.listen({port: 4000}, () =>
   console.log("Now browse to http://localhost:4000" + server.graphqlPath)
